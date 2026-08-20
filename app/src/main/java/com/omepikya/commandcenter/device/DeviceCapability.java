@@ -1,0 +1,6 @@
+package com.omepikya.commandcenter.device;
+
+public enum DeviceCapability {
+    WIFI, BLUETOOTH, AIRPLANE_MODE, BRIGHTNESS, VOLUME, FLASHLIGHT,
+    BATTERY, NETWORK, SCREEN, MEDIA, NOTIFICATIONS, APPS, CALLS, MESSAGES, NAVIGATION
+}

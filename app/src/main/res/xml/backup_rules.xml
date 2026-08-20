@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<full-backup-content>
+
+    <!--
+        SecureStorage contains encrypted application values.
+        Do not export this preference file through Android backup.
+    -->
+    <exclude
+        domain="sharedpref"
+        path="omepikya_secure_storage.xml" />
+
+</full-backup-content>

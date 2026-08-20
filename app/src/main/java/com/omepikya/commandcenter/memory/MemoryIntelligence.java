@@ -1,0 +1,3 @@
+package com.omepikya.commandcenter.memory;
+import android.content.Context;import java.util.List;
+public class MemoryIntelligence {private final MemoryManager manager;private final MemoryPolicy policy=new MemoryPolicy();public MemoryIntelligence(Context c){manager=new MemoryManager(c);}public String remember(String k,String v,MemoryPolicy.Importance i){return policy.shouldPersist(i)?manager.save(k,v):null;}public MemoryItem recall(String k){return manager.get(k);}public boolean forget(String k){return manager.removeByKey(k);}public void clear(){manager.clear();}public List<MemoryItem> all(){return manager.getAll();}}
