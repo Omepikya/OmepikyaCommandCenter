@@ -1,181 +1,92 @@
-Omepikya Command Center
-Phase 1 User Guide
-Omepikya Command Center is an Android command-and-control assistant designed to let you interact with Android using natural text commands and voice.
-What it can currently do
-Text commands
-Type a command into the command box and execute it.
-Example:
-Open YouTube
-Voice commands
-Tap the VOICE button, allow microphone permission, and speak a command. Speech is converted to text and sent through the same command engine.
-Example:
-Open YouTube
-Open installed apps
-Omepikya can search installed launchable apps by their visible name.
+# Omepikya Command Center
+
+Omepikya Command Center is an Android command-and-control assistant that accepts natural-language text and voice commands and routes them through a safety-aware execution pipeline.
+
+## Current architecture
+
+The current codebase is a unified Phase 9 baseline, not the old Phase 1-only implementation described by earlier documentation.
+
+**Command pipeline**
+
+Input → normalization → alias/context resolution → intent intelligence → confidence gate → safety gate → planning/workflow → execution coordinator → verification/recovery → learning/context update.
+
+**Autonomous pipeline**
+
+Goal → decomposition → bounded autonomous plan → CommandBrain execution → step verification → persistence → recovery/replanning → completion.
+
+### Major subsystems
+
+- `core` — command orchestration and command results
+- `nlp` — intent parsing and entity extraction
+- `intelligence` — normalization, confidence, learning, entity resolution and proactive behavior
+- `context` — short-lived command context
+- `memory` — persistent memory, conversation memory and preferences
+- `planning` — multi-step command planning
+- `execution` — execution coordination, history, tracing and recovery
+- `router` — action registration and dispatch
+- `bridge` — Android/system integration
+- `security` — confirmation and sensitive-action protection
+- `autonomous` — autonomous goals, execution and replanning
+- `automation` — workflows and scheduled automation foundations
+- `plugins` — plugin runtime and event bus
+- `voice` — speech recognition/result handling and text-to-speech integration
+- `ui` — command, voice and settings screens
+
+## Supported command categories
+
+The current intent layer includes support for application opening/closing, Android settings navigation, media, communication, automation, navigation, device actions and information requests, with additional entities and actions implemented by the router.
+
 Examples:
-Open YouTube
-Open Chrome
-Open WhatsApp
-Open Settings
-Android system settings
-Omepikya can open supported Android settings screens.
-Examples:
-Open Wi-Fi settings
-Open Bluetooth settings
-Open display settings
-Open sound settings
-Open location settings
-Open notification settings
-Open airplane mode settings
-Open mobile network settings
-Opening a settings screen is different from silently changing a protected Android setting. Android restricts many system-level operations for security reasons.
-Command understanding
-Commands pass through an NLP pipeline that identifies intents such as:
-Open application
-Close application
-System settings
-Media
-Communication
-Automation
-Navigation
-Information
-Action routing
-The router selects an action for the detected intent.
-User command
-    ↓
-IntentParser
-    ↓
-CommandContext
-    ↓
-ActionRouter
-    ↓
-Action
-    ↓
-Android/SystemBridge
-Voice responses
-Android Text-to-Speech can speak command results.
-Example:
-User: Open YouTube
-Omepikya: Opening YouTube
-Automation foundation
-Phase 1 includes the foundation for scheduled tasks using an automation core, tasks/scheduling infrastructure, receivers, and Android alarms. More automation capabilities are planned for later phases.
-Example commands
-Apps
-Open YouTube
-Open Chrome
-Open WhatsApp
-Open Settings
-Settings
-Open Wi-Fi settings
-Open Bluetooth settings
-Open display settings
-Open sound settings
-Open location settings
-Open notification settings
-What is not fully implemented yet
-Phase 1 is a foundation, not a complete phone-control assistant. These capabilities require additional implementation, Android permissions, API handling, and often user confirmation:
-Automatically changing every system setting
-Sending messages automatically
-Making calls automatically
-Reading private notifications
-Full device automation
-Continuous background listening
-Arbitrary shell/root commands
-Access to protected Android data
-Architecture
-Text / Voice
-     ↓
-Command Brain
-     ↓
-NLP / Intent
-     ↓
-Command Context
-     ↓
-Action Router
-     ↓
-Action
-     ↓
-System Bridge
-     ↓
-Android
-Main components
-Command Brain — coordinates command processing.
-NLP — parses commands, identifies intents, and extracts entities.
-Router — selects the correct action.
-System Bridge — communicates with Android capabilities.
-Voice — speech recognition and text-to-speech.
-Automation — scheduling and triggered-task foundation.
-UI — command input, execution, voice control, and result display.
-Roadmap
-Phase 1 — Core Command Center
-Command Brain
-NLP
-Action Router
-System Bridge
-Text UI
-Voice Engine
-Automation foundation
-Status: Complete
-Phase 2 — Expanded Actions
-Planned:
-More Android actions
-Better application control
-Communication actions
-Media controls
-Navigation
-More system integrations
-Phase 3 — Memory
-Planned:
-Conversation memory
-User preferences
-Command history
-Context-aware commands
-Phase 4 — Advanced Automation
-Planned:
-Scheduled tasks
-Conditional tasks
-Repeating tasks
-Event-based automation
-Notification-driven actions
-Phase 5 — Security
-Planned:
-Permission manager
-Action confirmation
-Sensitive-command protection
-Secure plugin execution
-Audit logging
-Phase 6 — Plugins
-Planned:
-Modular plugins
-Plugin registry
-Plugin permissions
-External integrations
-Safety principle
-Sensitive operations should not be performed silently. Commands involving communication, purchases, account changes, private information, destructive operations, or security-sensitive settings should eventually use appropriate confirmation and Android permissions.
-Project structure
-app/src/main/java/com/omepikya/commandcenter/
-├── MainActivity.java
-├── automation/
-├── bridge/
-├── core/
-├── nlp/
-├── router/
-├── ui/
-└── voice/
-Development rule
-New capabilities should follow:
-Command
-  ↓
-Intent
-  ↓
-CommandContext
-  ↓
-ActionRouter
-  ↓
-New Action
-  ↓
-SystemBridge / Android API
-Keep command logic out of MainActivity whenever possible.
-Status
-Omepikya Command Center — Phase 1
-The project has the foundation for text commands, voice interaction, intent classification, action routing, Android app launching, system-settings navigation, and automation infrastructure.
+
+- `Open YouTube`
+- `Open Wi-Fi settings`
+- `Open Bluetooth settings`
+- `Open display settings`
+- `Send a WhatsApp message to Rahul saying hello`
+- `Call Rahul`
+- `Run workflow morning routine`
+
+Availability of an action still depends on Android permissions, platform restrictions and the implementation of the corresponding action.
+
+## Safety model
+
+Sensitive operations are not intended to run silently. The command pipeline includes confidence and safety gates, confirmation handling, execution tracing and bounded recovery. Android platform restrictions are respected rather than bypassed.
+
+## Build requirements
+
+The project has been modernized to:
+
+- Android Gradle Plugin `7.4.2`
+- Gradle `7.5`
+- compile/target SDK `34`
+- AndroidX + Material dependencies
+- Java 8 source/target compatibility
+
+AGP 7.4.2 itself requires a modern JDK (JDK 11 is the supported runtime). Java 8 remains the source/target language level for compatibility with the existing codebase.
+
+## Verification
+
+Pure NLP coverage is provided under `app/src/test`. The parser tests cover application intents, system-settings intents, empty input and WhatsApp message entity extraction.
+
+Run the standard checks from the project root:
+
+    ./gradlew test
+    ./gradlew assembleDebug
+
+For release validation, also run:
+
+    ./gradlew assembleRelease
+
+## Refactoring direction
+
+`CommandBrain` remains the orchestration boundary, but reusable parsing/formatting/context helper logic has been extracted to `CommandBrainSupport`. New capabilities should be implemented in their subsystem rather than adding action-specific logic to the brain itself.
+
+Keep the dependency direction clear:
+
+UI/Voice → CommandBrain → Intelligence/Planning/Safety → ExecutionCoordinator → ActionRouter → Actions/SystemBridge.
+
+Autonomous execution should continue to route generated steps through `CommandBrain` so the same safety, confidence and execution lifecycle applies to both direct and autonomous commands.
+
+## Project status
+
+The repository is now maintained as the modernized Command Center baseline. The next development work should focus on automated test coverage around execution/safety/autonomous flows and further extraction of domain-specific orchestration from `CommandBrain`, rather than adding another large monolithic layer.
