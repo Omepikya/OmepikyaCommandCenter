@@ -159,11 +159,8 @@ public class CommandBrain {
      */
     private final AutonomousEngine autonomousEngine;
 
-    private String pendingCommand;
-
-    private Intent pendingIntent;
-
-    private boolean pendingSafetyConfirmation;
+    private final CommandConfirmationState confirmationState =
+            new CommandConfirmationState();
 
     private CommandResult lastResult;
 
@@ -312,17 +309,16 @@ public class CommandBrain {
         /*
          * Handle pending confirmation.
          */
-        if (pendingCommand != null &&
-                pendingIntent != null) {
+        if (confirmationState.isPending()) {
 
             if (reply.type ==
                     FollowUpEngine.Type.YES) {
 
                 String command =
-                        pendingCommand;
+                        confirmationState.getCommand();
 
                 boolean safety =
-                        pendingSafetyConfirmation;
+                        confirmationState.isSafetyConfirmation();
 
                 clearPending();
 
@@ -492,14 +488,10 @@ public class CommandBrain {
                 ConfidenceEngine.Decision.CONFIRM &&
                 !confirmed) {
 
-            pendingCommand =
-                    contextual;
-
-            pendingIntent =
-                    intent;
-
-            pendingSafetyConfirmation =
-                    false;
+            confirmationState.set(
+                    contextual,
+                    intent,
+                    false);
 
             contextEngine.waiting();
 
@@ -797,19 +789,12 @@ public class CommandBrain {
      * the last interpreted command.
      */
     public synchronized boolean isAwaitingConfirmation() {
-        return pendingCommand != null && pendingIntent != null;
+        return confirmationState.isPending();
     }
 
     private void clearPending() {
 
-        pendingCommand =
-                null;
-
-        pendingIntent =
-                null;
-
-        pendingSafetyConfirmation =
-                false;
+        confirmationState.clear();
     }
 
     public synchronized void resetContext() {
