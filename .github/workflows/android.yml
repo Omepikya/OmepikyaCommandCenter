@@ -31,3 +31,20 @@ jobs:
 
       - name: Debug APK
         run: ./gradlew assembleDebug --no-daemon
+
+      - name: Release APK
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: omepikya-command-center-debug
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Upload release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: omepikya-command-center-release
+          path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
