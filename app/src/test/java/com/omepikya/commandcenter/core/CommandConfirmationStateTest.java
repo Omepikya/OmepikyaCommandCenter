@@ -2,7 +2,7 @@ package com.omepikya.commandcenter.core;
 
 import org.junit.Test;
 
-import com.omepikya.commandcenter.nlp.CommandType;
+import com.omepikya.commandcenter.core.CommandType;
 import com.omepikya.commandcenter.nlp.Intent;
 
 import static org.junit.Assert.*;
