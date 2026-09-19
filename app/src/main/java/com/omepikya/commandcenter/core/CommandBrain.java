@@ -128,6 +128,8 @@ public class CommandBrain {
 
     private final WorkflowEngine workflowEngine;
 
+    private final CommandPipeline commandPipeline;
+
     private final IntelligenceSafety intelligenceSafety =
             new IntelligenceSafety();
 
@@ -264,6 +266,19 @@ public class CommandBrain {
                 new WorkflowEngine(
                         context);
 
+        commandPipeline =
+                new CommandPipeline(
+                        intelligentPlanner,
+                        workflowEngine,
+                        new CommandPipeline.SingleCommandExecutor() {
+                            @Override
+                            public CommandResult execute(
+                                    String command,
+                                    boolean confirmed) {
+                                return executeSingle(command, confirmed);
+                            }
+                        });
+
         /*
          * Phase 8:
          * autonomous goal engine.
@@ -338,159 +353,17 @@ public class CommandBrain {
     }
 
     /**
-     * Top-level command processing.
+     * Public facade for top-level pipeline execution.
      */
     private CommandResult executeTopLevel(
             String command,
             boolean allowPlan,
             boolean confirmed) {
 
-        if (contextEngine.isExpired()) {
-
-            contextEngine.reset();
-        }
-
-        conversationMemory.addUserMessage(
-                command);
-
-        /*
-         * Named workflow execution.
-         */
-        String workflowName =
-                CommandBrainSupport.extractWorkflowInvocation(
-                        command);
-
-        if (workflowName != null) {
-
-            List<String> workflow =
-                    workflowEngine.load(
-                            workflowName);
-
-            if (!workflow.isEmpty()) {
-
-                CommandPlan workflowPlan =
-                        new CommandPlan();
-
-                for (String step :
-                        workflow) {
-
-                    workflowPlan.add(
-                            step);
-                }
-
-                return executePlan(
-                        workflowPlan);
-            }
-        }
-
-        /*
-         * Multi-step planning.
-         */
-        if (allowPlan) {
-
-            CommandPlan plan =
-                    intelligentPlanner.plan(
-                            command);
-
-            if (intelligentPlanner.isValid(
-                    plan) &&
-                    plan.getSteps().size() > 1) {
-
-                return executePlan(
-                        plan);
-            }
-        }
-
-        return executeSingle(
+        return commandPipeline.executeTopLevel(
                 command,
+                allowPlan,
                 confirmed);
-    }
-
-    /**
-     * Executes a bounded multi-step plan.
-     */
-    private CommandResult executePlan(
-            CommandPlan plan) {
-
-        if (!intelligentPlanner.isValid(
-                plan)) {
-
-            return CommandResult.failure(
-                    "Command plan is invalid.");
-        }
-
-        List<String> messages =
-                new ArrayList<>();
-
-        while (plan.hasNext()) {
-
-            CommandStep step =
-                    plan.next();
-
-            if (step == null ||
-                    step.getCommand() == null ||
-                    step.getCommand()
-                            .trim()
-                            .isEmpty()) {
-
-                return CommandResult.failure(
-                        CommandBrainSupport.join(
-                                messages,
-                                "A command step is invalid."));
-            }
-
-            step.incrementAttempts();
-
-            CommandResult result =
-                    executeSingle(
-                            step.getCommand(),
-                            false);
-
-            if (result == null) {
-
-                return CommandResult.failure(
-                        join(
-                                messages,
-                                "A command step returned no result."));
-            }
-
-            step.setResult(
-                    result.getMessage());
-
-            if (!result.isSuccess()) {
-
-                return CommandResult.failure(
-                        join(
-                                messages,
-                                result.getMessage()));
-            }
-
-            step.setCompleted(
-                    true);
-
-            if (result.getMessage() != null &&
-                    !result.getMessage()
-                            .trim()
-                            .isEmpty()) {
-
-                messages.add(
-                        result.getMessage()
-                                .trim());
-            }
-
-            plan.advance();
-        }
-
-        if (messages.isEmpty()) {
-
-            return CommandResult.success(
-                    "Command completed.");
-        }
-
-        return CommandResult.success(
-                String.join(
-                        "\n",
-                        messages));
     }
 
     /**
