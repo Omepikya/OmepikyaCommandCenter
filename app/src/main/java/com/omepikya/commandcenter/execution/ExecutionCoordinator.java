@@ -74,7 +74,7 @@ public final class ExecutionCoordinator {
                 0L;
     }
 
-    public ExecutionResult execute(
+    public synchronized ExecutionResult execute(
             CommandContext context) {
 
         return execute(
@@ -82,7 +82,7 @@ public final class ExecutionCoordinator {
                 new ExecutionCancellation());
     }
 
-    public ExecutionResult execute(
+    public synchronized ExecutionResult execute(
             CommandContext context,
             ExecutionCancellation cancellation) {
 
