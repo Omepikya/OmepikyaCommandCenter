@@ -25,7 +25,6 @@ import com.omepikya.commandcenter.intelligence.ProactiveIntelligence;
 import com.omepikya.commandcenter.memory.ConversationMemory;
 import com.omepikya.commandcenter.memory.MemoryManager;
 import com.omepikya.commandcenter.memory.PreferenceMemory;
-import com.omepikya.commandcenter.nlp.EntityExtractor;
 import com.omepikya.commandcenter.nlp.Intent;
 import com.omepikya.commandcenter.nlp.IntentParser;
 import com.omepikya.commandcenter.planning.ActionPlanner;
@@ -91,9 +90,6 @@ public class CommandBrain {
 
     private final IntentParser intentParser =
             new IntentParser();
-
-    private final EntityExtractor entityExtractor =
-            new EntityExtractor();
 
     private final MemoryManager memoryManager;
 
