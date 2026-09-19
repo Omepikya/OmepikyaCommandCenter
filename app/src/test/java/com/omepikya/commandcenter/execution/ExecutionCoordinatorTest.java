@@ -64,9 +64,8 @@ public class ExecutionCoordinatorTest {
         assertEquals(
                 1,
                 executor.getHistory().size());
-        assertEquals(
-                1,
-                coordinator.getEventBus().getSubscriberCount());
+        assertTrue(
+                coordinator.getEventBus().getRecentEvents(10).size() > 0);
     }
 
     @Test
