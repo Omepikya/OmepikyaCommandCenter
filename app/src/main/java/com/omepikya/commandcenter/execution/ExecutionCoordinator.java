@@ -399,6 +399,20 @@ public final class ExecutionCoordinator {
         }
     }
 
+    /** Shared persistent execution history owned by the execution gateway. */
+    public ExecutionHistory getExecutionHistory() {
+        return executor.getHistory();
+    }
+
+    /** Shared crash-safe execution state store. */
+    public ExecutionStateStore getStateStore() {
+        return stateStore;
+    }
+
+    public ExecutionEventBus getEventBus() {
+        return eventBus;
+    }
+
     private ExecutionResult finishFailure(
             ExecutionTrace trace,
             ExecutionCancellation token,
