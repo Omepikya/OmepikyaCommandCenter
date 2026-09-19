@@ -240,7 +240,9 @@ public class CommandBrain {
         autonomousControlCenter =
                 new AutonomousControlCenter(
                         context,
-                        executionCoordinator.getEventBus());
+                        executionCoordinator.getEventBus(),
+                        executionCoordinator.getExecutionHistory(),
+                        executionCoordinator.getStateStore());
 
         intentIntelligence =
                 new IntentIntelligence(
