@@ -39,7 +39,6 @@ import com.omepikya.commandcenter.security.IntelligenceSafety;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -358,7 +357,7 @@ public class CommandBrain {
          * Named workflow execution.
          */
         String workflowName =
-                extractWorkflowInvocation(
+                CommandBrainSupport.extractWorkflowInvocation(
                         command);
 
         if (workflowName != null) {
@@ -435,7 +434,7 @@ public class CommandBrain {
                             .isEmpty()) {
 
                 return CommandResult.failure(
-                        join(
+                        CommandBrainSupport.join(
                                 messages,
                                 "A command step is invalid."));
             }
@@ -527,8 +526,8 @@ public class CommandBrain {
          * Resolve contextual references.
          */
         String contextual =
-                resolvePronouns(
-                        command);
+                CommandBrainSupport.resolvePronouns(
+                        command, contextEngine, entityResolver);
 
         contextEngine.setLastCommand(
                 contextual);
@@ -633,7 +632,7 @@ public class CommandBrain {
 
             return CommandResult.failure(
                     "I understood this as: " +
-                    describe(intent) +
+                    CommandBrainSupport.describe(intent) +
                     ". Please say yes or no.");
         }
 
@@ -781,187 +780,6 @@ public class CommandBrain {
         }
 
         return result;
-    }
-
-    /**
-     * Detect:
-     *
-     * run workflow <name>
-     */
-    private String extractWorkflowInvocation(
-            String command) {
-
-        if (command == null) {
-
-            return null;
-        }
-
-        String lower =
-                command.toLowerCase(
-                        Locale.US)
-                        .trim();
-
-        String prefix =
-                "run workflow ";
-
-        if (!lower.startsWith(
-                prefix)) {
-
-            return null;
-        }
-
-        String name =
-                command.trim()
-                        .substring(
-                                prefix.length())
-                        .trim();
-
-        return name.isEmpty()
-                ? null
-                : name;
-    }
-
-    /**
-     * Basic contextual pronoun resolution.
-     */
-    private String resolvePronouns(
-            String command) {
-
-        if (command == null) {
-
-            return "";
-        }
-
-        String s =
-                command.trim();
-
-        String person =
-                contextEngine.get(
-                        "person");
-
-        if (person == null ||
-                person.trim().isEmpty()) {
-
-            return s;
-        }
-
-        String lower =
-                s.toLowerCase(
-                        Locale.US);
-
-        String target;
-
-        if (lower.startsWith(
-                "call ")) {
-
-            target =
-                    lower.substring(
-                            5)
-                            .trim();
-
-        } else if (lower.startsWith(
-                "message ")) {
-
-            target =
-                    lower.substring(
-                            8)
-                            .trim();
-
-        } else if (lower.startsWith(
-                "text ")) {
-
-            target =
-                    lower.substring(
-                            5)
-                            .trim();
-
-        } else {
-
-            target =
-                    lower;
-        }
-
-        String resolved =
-                entityResolver.resolvePerson(
-                        target,
-                        person,
-                        null);
-
-        if (resolved == null ||
-                resolved.trim().isEmpty()) {
-
-            resolved =
-                    person;
-        }
-
-        if (lower.equals(
-                "call him") ||
-                lower.equals(
-                        "call her") ||
-                lower.equals(
-                        "call them")) {
-
-            return "call " +
-                    resolved;
-        }
-
-        if (lower.startsWith(
-                "message him ") ||
-                lower.startsWith(
-                        "message her ") ||
-                lower.startsWith(
-                        "message them ")) {
-
-            return "message " +
-                    resolved +
-                    tailAfterPronoun(
-                            s);
-        }
-
-        if (lower.startsWith(
-                "text him ") ||
-                lower.startsWith(
-                        "text her ") ||
-                lower.startsWith(
-                        "text them ")) {
-
-            return "text " +
-                    resolved +
-                    tailAfterPronoun(
-                            s);
-        }
-
-        return s;
-    }
-
-    private String tailAfterPronoun(
-            String s) {
-
-        int first =
-                s.indexOf(' ');
-
-        if (first < 0) {
-
-            return "";
-        }
-
-        String rest =
-                s.substring(
-                        first + 1)
-                        .trim();
-
-        int second =
-                rest.indexOf(' ');
-
-        if (second < 0) {
-
-            return "";
-        }
-
-        return " " +
-                rest.substring(
-                        second + 1)
-                        .trim();
     }
 
     /**
