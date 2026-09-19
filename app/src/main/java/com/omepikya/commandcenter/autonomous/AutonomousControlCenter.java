@@ -58,6 +58,8 @@ public final class AutonomousControlCenter {
 
         this(
                 context,
+                null,
+                null,
                 null);
     }
 
@@ -69,6 +71,23 @@ public final class AutonomousControlCenter {
             Context context,
             ExecutionEventBus eventBus) {
 
+        this(
+                context,
+                eventBus,
+                null,
+                null);
+    }
+
+    /**
+     * Uses the execution coordinator's persistent history and state store
+     * so autonomous diagnostics observe the same execution state.
+     */
+    public AutonomousControlCenter(
+            Context context,
+            ExecutionEventBus eventBus,
+            ExecutionHistory executionHistory,
+            ExecutionStateStore stateStore) {
+
         if (context == null) {
 
             throw new IllegalArgumentException(
@@ -79,12 +98,14 @@ public final class AutonomousControlCenter {
                 context.getApplicationContext();
 
         this.executionHistory =
-                new ExecutionHistory(
-                        this.context);
+                executionHistory == null
+                        ? new ExecutionHistory(this.context)
+                        : executionHistory;
 
         this.stateStore =
-                new ExecutionStateStore(
-                        this.context);
+                stateStore == null
+                        ? new ExecutionStateStore(this.context)
+                        : stateStore;
 
         this.eventBus =
                 eventBus == null
