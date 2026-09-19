@@ -454,14 +454,10 @@ public class CommandBrain {
 
         if (!safety.isAllowed()) {
 
-            pendingCommand =
-                    contextual;
-
-            pendingIntent =
-                    intent;
-
-            pendingSafetyConfirmation =
-                    true;
+            confirmationState.set(
+                    contextual,
+                    intent,
+                    true);
 
             contextEngine.waiting();
 
