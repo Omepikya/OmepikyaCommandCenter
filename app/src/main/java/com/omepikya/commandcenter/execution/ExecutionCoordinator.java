@@ -404,15 +404,6 @@ public final class ExecutionCoordinator {
         return executor.getHistory();
     }
 
-    /** Shared crash-safe execution state store. */
-    public ExecutionStateStore getStateStore() {
-        return stateStore;
-    }
-
-    public ExecutionEventBus getEventBus() {
-        return eventBus;
-    }
-
     private ExecutionResult finishFailure(
             ExecutionTrace trace,
             ExecutionCancellation token,
